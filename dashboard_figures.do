@@ -27,8 +27,7 @@ global county_data "${dropbox}/movers/final_web_files/Online_Tables_Final"
 global college_data "${dropbox}/ota_cqa/online_tables_clean_07212017/final_tables"
 global suffix png
 *The dashboard constructs figures at the county level
-*Use this macro to enter the desired county (using the cty2000 variable from the movers data
-
+*Use this macro to enter the desired county using the county FIPS code
 *For now doing King County (53033)
 global county=53033	
 
@@ -146,6 +145,8 @@ sort order
 
 label define factors 5 "Social Capital" 4 "Fraction Middle Class" 3 "Racial Integration" 2 "Two-Parent Households" 1 "Teacher-Student Ratio"
 label values order factors
+
+
 *tag the variables that are good (better than nat avg)
 gen tag_good=(pctile_>50)
 
@@ -228,10 +229,10 @@ replace mr_kq5_pq1=`r(mean)' if missing(mr_kq5_pq1)
 
 *add in the national average- again this is rough
 set obs `=_N+1'
-replace name = "Nat. Avg." if missing(name)
+replace name = "National Avg." if missing(name)
 replace mr_kq5_pq1= .0194582 if missing(mr_kq5_pq1)
 
-gen avg=1 if inlist(name, "County Avg.", "Nat. Avg.")
+gen avg=1 if inlist(name, "County Avg.", "National Avg.")
 
 keep if best==1 | worst==1 | avg==1
 
@@ -240,14 +241,27 @@ gen mob_rate=mr_kq5_pq1*100
 gsort mob_rate
 gen order=_n
 
+lab def order 1 "temp"
+levels(order), local(levels)
+foreach l of local levels {
+  gen temp = ""
+  replace temp = name if order==`l'
+  levels(temp), local(templabel)
+  lab def newvar `l' `templabel', modify
+  drop temp
+}
+lab val order newvar
 
-*create figure
 
-/*
-**********************************************************
-*college part
-use "D:\jgracie\Dropbox\ota_cqa\online_tables_clean_07212017\final_tables\mrc_table1.dta" 
-keep if czname=="Seattle"
 
-drop if inlist(super_opeid, 3797, 37243, 3794, 3785, 5000, 5001, 5372, 3796, 5306, 3776, 3792, 3772, 22033, 3784, 8155, 5752)
- summ mr_kq5_pq1 [w=count]
+*construct the figure
+**********************
+twoway (bar mob_rate order if best==1, horizontal color(green) ) ///
+		(bar mob_rate order if avg==1, horizontal color(gray)) ///
+		(bar mob_rate order if worst==1, horizontal color(maroon)), ///
+		ylabel(1(1)12, valuelabel nogrid angle(0)) xlabel(0(1)4) ///
+		xtick(0(1)4)  ///
+		xtitle("Mobility Rate") ytitle("") legend(off)
+
+graph export "${out_folder}/${county}_fig3.${suffix}", replace
+		
