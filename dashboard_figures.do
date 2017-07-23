@@ -66,6 +66,27 @@ list pctile_coll if cty2000==${county}
 xtile pctile_rank= perm_res_p25_kr30 [w=cty_pop2000], nq(100)
 list pctile_rank if cty2000==${county}
 
+*construct the figure
+**********************
+keep if cty2000==$county
+keep cty2000 pctile*
+*reshape long
+reshape long pctile_, i(cty2000) j(cat) string
+*order the variables in chronological order
+gen order=0
+replace order=1 if cat=="test"
+replace order=2 if cat=="grad"
+replace order=3 if cat=="work"
+replace order=4 if cat=="coll"
+replace order=5 if cat=="rank"
+
+label define outcomes 1 `""K-8" "Test Scores""' 2 `""HS Grad" "Rate""' 3 `""Teen" "Work""' 4 `""College" "Attendance""' 5 `""Earnings at" "30""'
+label values order outcomes
+sort order
+twoway (scatter pctile_ order, connect(1) mcolor(green) lcolor(green)), ///
+	yline(50, lcolor(grey) lpattern(dash)) ylab(0(50)100, nogrid) ytick(0(25)100) ///
+	ytitle("") xtitle("") xlabel(,valuelabel)
+/
 ******************************************************************************
 *create percentiles
 xtile stud_teach_2=ccd_pup_tch_ratio [w=cty_pop2000], nq(100)
