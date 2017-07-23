@@ -20,22 +20,27 @@ set scheme leap_slides
 
 * Macros
 global figs "$dropbox/finer_geo/seattle/tract_figs/dashboard"  
-global data "$dropbox/finer_geo/seattle/tract_data"
+global data_cw "$dropbox/finer_geo/data/derived/crosswalks/"
 global newdata "$dropbox/finer_geo/data/raw/tract_exposure_estimates" 
 global covar "$dropbox/finer_geo/data/derived/covariates"
 global county_data "${dropbox}/movers/final_web_files/Online_Tables_Final"
-
+global college_data "${dropbox}/ota_cqa/online_tables_clean_07212017/final_tables"
+global suffix png
 *The dashboard constructs figures at the county level
 *Use this macro to enter the desired county (using the cty2000 variable from the movers data
 
 *For now doing King County (53033)
 global county=53033	
+
+cap mkdir "${figs}/county_${county}"
+global out_folder "${figs}/county_${county}"
 /*
 ********************************************************************************
 * Figure 1- Dynamics of Opportunity
 		*Variables of interest - K-8 Test Scores, HS Grad Rate, Teen Work, College Attendance, 
 			Earnings at 30
 ********************************************************************************/
+
 
 *use the covariate data from 
 use "${county_data}/nbhds_online_data_table4.dta" , clear
@@ -87,7 +92,7 @@ twoway (scatter pctile_ order, connect(1) mcolor(green) lcolor(green)), ///
 	yline(50, lcolor(gray) lpattern(dash)) ylab(0(50)100, nogrid) ytick(0(25)100) ///
 	ytitle("Percentile Among U.S. Counties") xtitle("") xlabel(,valuelabel labsize(medsmall))
 
-
+graph export "${out_folder}/${county}_fig1.${suffix}", replace
 /******************************************************************************
 *Figure 2- National Percentile on Key Factors
 	*Variables of Interest: Social Capital, Fraction Middle Class, Racial Integration,
@@ -150,16 +155,95 @@ twoway (bar pctile_ order if tag_good==1, horizontal color(green) ) ///
 		xtick(0(25)100) xline(50, lpattern(dash) lcolor(gray)) ///
 		xtitle("") ytitle("") legend(off)
 		
-
+graph export "${out_folder}/${county}_fig2.${suffix}", replace
 /*********************************************************************
 *Figure 3- Best and worst mobility colleges in the county
 **********************************************************************/
-*Trajectory Plot
-*CZ level
-use "C:\Users\jgracie\Downloads\online_table3.dta" , clear
+
+use "${college_data}/mrc_table1.dta" , clear
+
+/*
+*for now this is quite manual, need to find zipcodes to change that
+keep if czname == "Seattle"
+drop if inlist(super_opeid, 3797, 37243, 3794, 3785, 5000, 5001, 5372, 3796, 5306, 3776, 3792, 3772, 22033, 3784, 8155, 5752)
+*/
+*merge in the super opeid crosswalk to opeid crosswalk
+merge 1:m super_opeid using "${college_data}/mrc_table11.dta", keep(match) nogen
+replace opeid=opeid*100
+preserve
+
+*use IPEDS Zip Code Data
+import delimited "${data_cw}/opeid_zip.csv", clear
+rename officeofpostsecondaryeducationop opeid
+rename zipcodehd2014 zip
+
+keep opeid zip
+tempfile zip
+save `zip', replace
+
+restore
+
+*not a perfect match need to work on this
+merge m:m opeid using `zip', nogen keep(match)
+
+*format the zipcodes
+*split the zipcodes at -
+split zip, parse(-)
+drop zip2
+drop zip
+rename zip1 zip
+destring zip, replace
+
+preserve
+*now need a zip to county crosswalk
+
+import delimited "${data_cw}/zip_county.csv", clear
+keep county zip
+tempfile county
+save `county', replace
+
+restore 
+
+merge m:m zip using `county', keep(match)
+drop if super_opeid==-1
+*this works! (for King County at least. What a time to be alive)
 
 
 
+*restrict to county
+keep if county==${county}
+
+
+*tag best schools by mobility
+gsort -mr_kq5_pq1
+gen best=1 if _n<=5
+gsort mr_kq5_pq1
+gen worst=1 if _n<=5
+
+*add in the county average- there must be abetter way to do this
+set obs `=_N+1'
+replace name = "County Avg." if missing(name)
+summ mr_kq5_pq1 [w=count]
+replace mr_kq5_pq1=`r(mean)' if missing(mr_kq5_pq1)
+
+*add in the national average- again this is rough
+set obs `=_N+1'
+replace name = "Nat. Avg." if missing(name)
+replace mr_kq5_pq1= .0194582 if missing(mr_kq5_pq1)
+
+gen avg=1 if inlist(name, "County Avg.", "Nat. Avg.")
+
+keep if best==1 | worst==1 | avg==1
+
+gen mob_rate=mr_kq5_pq1*100
+
+gsort mob_rate
+gen order=_n
+
+
+*create figure
+
+/*
 **********************************************************
 *college part
 use "D:\jgracie\Dropbox\ota_cqa\online_tables_clean_07212017\final_tables\mrc_table1.dta" 
