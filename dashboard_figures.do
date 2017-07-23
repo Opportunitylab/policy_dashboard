@@ -124,7 +124,36 @@ list pctile_scap if cty2000==${county}
 xtile pctile_middle=frac_middleclass [w=cty_pop2000], nq(100)
 list pctile_middle if cty2000==${county}
 
-*********************************************************************
+*construct the figure
+**********************
+keep if cty2000==$county
+keep cty2000 pctile*
+*reshape long
+reshape long pctile_, i(cty2000) j(cat) string
+*order the variables in chronological order
+gen order=0
+replace order=5 if cat=="scap"
+replace order=4 if cat=="middle"
+replace order=3 if cat=="int"
+replace order=2 if cat=="two"
+replace order=1 if cat=="stud_teach"
+sort order
+
+label define factors 5 "Social Capital" 4 "Fraction Middle Class" 3 "Racial Integration" 2 "Two-Parent Households" 1 "Teacher-Student Ratio"
+label values order factors
+*tag the variables that are good (better than nat avg)
+gen tag_good=(pctile_>50)
+
+twoway (bar pctile_ order if tag_good==1, horizontal color(green) ) ///
+		(bar pctile_ order if tag_good==0, horizontal color(maroon)), ///
+		ylabel(1(1)5, valuelabel nogrid angle(0)) xlabel(0(50)100) ///
+		xtick(0(25)100) xline(50, lpattern(dash) lcolor(gray)) ///
+		xtitle("") ytitle("") legend(off)
+		
+
+/*********************************************************************
+*Figure 3- Best and worst mobility colleges in the county
+**********************************************************************/
 *Trajectory Plot
 *CZ level
 use "C:\Users\jgracie\Downloads\online_table3.dta" , clear
