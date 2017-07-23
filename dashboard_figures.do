@@ -1,11 +1,14 @@
 /*******************************************************************************
-				SEATTLE DASHBOARD FIGURES/TABLES
+				POLICY DASHBOARD FIGURES
 ********************************************************************************
 
- PURPOSE: Create figures and tables for the Seattle Policy Arm.
+ PURPOSE: Create figures and for the policy dashboard
 
- AUTHOR(S):  Sarah Merchant
- DATE: 7.19.17
+ AUTHOR(S): Jamie Gracie
+ DATE: 7.22.17
+ 
+ *Figures that this file constructs
+ 1) Dynamics of Opportunity
  
 *******************************************************************************/
 
@@ -20,17 +23,16 @@ global figs "$dropbox/finer_geo/seattle/tract_figs/dashboard"
 global data "$dropbox/finer_geo/seattle/tract_data"
 global newdata "$dropbox/finer_geo/data/raw/tract_exposure_estimates" 
 global covar "$dropbox/finer_geo/data/derived/covariates"
+global county_data "${dropbox}/movers/final_web_files/Online_Tables_Final/nbhds_online_data_table4.dta"
 
-* Save Seattle City Indicator
-use "${data}/forecasts_all.dta", clear
-keep if state == 53
-keep county tract state seattle_city
-tempfile seattle
-save `seattle'
-	
+*The dashboard constructs figures at the county level
+*Use this macro to enter the desired county (using the cty2000 variable from the movers data
+
+*For now doing King County (53033)
+global county=53033	
 /*
 ********************************************************************************
-* Correlates for King County Mobility
+* Figure 1- Dynamics of Opportunity
 ********************************************************************************/
 
 *cz level
