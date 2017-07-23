@@ -33,8 +33,9 @@ global county=53033
 /*
 ********************************************************************************
 * Figure 1- Dynamics of Opportunity
+		*Variables of interest - K-8 Test Scores, HS Grad Rate, Teen Work, College Attendance, 
+			Earnings at 30
 ********************************************************************************/
-*Variables of interest - K-8 Test Scores, HS Grad Rate, Teen Work, College Attendance, Earnings at 30
 
 *use the covariate data from 
 use "C:\Users\jgracie\Downloads\online_table4.dta" , clear
@@ -46,12 +47,11 @@ list pctile_test if cty2000==${county}
 
 *Grad Rates
 *We imputed (mentally) the King County rank because of missing data
-/*
 gen grad_rate=1-dropout_r
 replace grad_rate=.804 if cty2000==53033
 xtile pctile_grad=grad_rate [w=cty_pop2000], nq(100)
 list pctile_grad if cty2000==${county}
-*/
+
 gen pctile_grad=40 if cty2000==${county}
 
 *Teen Work
@@ -85,33 +85,44 @@ label values order outcomes
 sort order
 twoway (scatter pctile_ order, connect(1) mcolor(green) lcolor(green)), ///
 	yline(50, lcolor(grey) lpattern(dash)) ylab(0(50)100, nogrid) ytick(0(25)100) ///
-	ytitle("") xtitle("") xlabel(,valuelabel)
-/
-******************************************************************************
+	ytitle("") xtitle("") xlabel(,valuelabel labsize(medsmall))
+
+
+/******************************************************************************
+*Figure 2- National Percentile on Key Factors
+	*Variables of Interest: Social Capital, Fraction Middle Class, Racial Integration,
+		*Two parent Households, Teacher Student Ratio
+******************************************************************************/
+*use the covariate data from 
+use "C:\Users\jgracie\Downloads\online_table4.dta" , clear
+
+
 *create percentiles
-xtile stud_teach_2=ccd_pup_tch_ratio [w=cty_pop2000], nq(100)
-list stud_teach_2 if cty2000==53033
 
-xtile seg=cs_race_theil_2000 [w=cty_pop2000], nq(100)
-list seg if cty2000==53033
+*student teacher rat
+xtile pctile_stud_teach=ccd_pup_tch_ratio [w=cty_pop2000], nq(100)
+list pctile_stud_teach if cty2000==${county}
 
-xtile single=cs_fam_wkidsinglemom [w=cty_pop2000], nq(100)
-list single if cty2000==53033
+*racial integration (take segregation percentile and do (100-percentile)
+xtile pctile_seg=cs_race_theil_2000 [w=cty_pop2000], nq(100)
+list pctile_seg if cty2000==${county}
+gen pctile_int=100-pctile_seg
+drop pctile_seg
 
-xtile scap=scap_ski90pcm [w=cty_pop2000], nq(100)
-list scap if cty2000==53033
+*Share Two Parent Households (share of single parents and 100-pctile)
+xtile pctile_single=cs_fam_wkidsinglemom [w=cty_pop2000], nq(100)
+list pctile_single if cty2000==${county}
+gen pctile_two=100-pctile_single
+drop pctile_single
 
-*change this to share middle class
-/*
-xtile poor=poor_share [w=cty_pop2000], nq(100)
-list poor if cty2000==53033
-*/
-xtile middle=frac_middleclass [w=cty_pop2000], nq(100)
-list middle if cty2000==53033
-/
+*social capital
+xtile pctile_scap=scap_ski90pcm [w=cty_pop2000], nq(100)
+list pctile_scap if cty2000==${county}
 
-xtile gini_2=gini [w=cty_pop2000], nq(100)
-list gini_2 if cty2000==53033
+*share middle class
+xtile pctile_middle=frac_middleclass [w=cty_pop2000], nq(100)
+list pctile_middle if cty2000==${county}
+
 *********************************************************************
 *Trajectory Plot
 *CZ level
