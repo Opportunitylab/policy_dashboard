@@ -98,9 +98,11 @@ use "${county_data}/nbhds_online_data_table4.dta" , clear
 
 *create percentiles
 
-*student teacher rat
+*student teacher ratio 
 xtile pctile_stud_teach=ccd_pup_tch_ratio [w=cty_pop2000], nq(100)
 list pctile_stud_teach if cty2000==${county}
+*invert so that high number is good
+replace pctile_stud_teach=100-pctile_stud_teach
 
 *racial integration (take segregation percentile and do (100-percentile)
 xtile pctile_seg=cs_race_theil_2000 [w=cty_pop2000], nq(100)
