@@ -23,7 +23,7 @@ global figs "$dropbox/finer_geo/seattle/tract_figs/dashboard"
 global data "$dropbox/finer_geo/seattle/tract_data"
 global newdata "$dropbox/finer_geo/data/raw/tract_exposure_estimates" 
 global covar "$dropbox/finer_geo/data/derived/covariates"
-global county_data "${dropbox}/movers/final_web_files/Online_Tables_Final/nbhds_online_data_table4.dta"
+global county_data "${dropbox}/movers/final_web_files/Online_Tables_Final"
 
 *The dashboard constructs figures at the county level
 *Use this macro to enter the desired county (using the cty2000 variable from the movers data
@@ -38,7 +38,7 @@ global county=53033
 ********************************************************************************/
 
 *use the covariate data from 
-use "C:\Users\jgracie\Downloads\online_table4.dta" , clear
+use "${county_data}/nbhds_online_data_table4.dta" , clear
 
 
 *Test Scores
@@ -52,7 +52,7 @@ replace grad_rate=.804 if cty2000==53033
 xtile pctile_grad=grad_rate [w=cty_pop2000], nq(100)
 list pctile_grad if cty2000==${county}
 
-gen pctile_grad=40 if cty2000==${county}
+replace pctile_grad=40 if cty2000==${county}
 
 *Teen Work
 xtile pctile_work= frac_worked1416 [w=cty_pop2000], nq(100)
@@ -94,8 +94,7 @@ twoway (scatter pctile_ order, connect(1) mcolor(green) lcolor(green)), ///
 		*Two parent Households, Teacher Student Ratio
 ******************************************************************************/
 *use the covariate data from 
-use "C:\Users\jgracie\Downloads\online_table4.dta" , clear
-
+use "${county_data}/nbhds_online_data_table4.dta" , clear
 
 *create percentiles
 
