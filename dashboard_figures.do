@@ -84,8 +84,8 @@ label define outcomes 1 `""K-8" "Test Scores""' 2 `""HS Grad" "Rate""' 3 `""Teen
 label values order outcomes
 sort order
 twoway (scatter pctile_ order, connect(1) mcolor(green) lcolor(green)), ///
-	yline(50, lcolor(grey) lpattern(dash)) ylab(0(50)100, nogrid) ytick(0(25)100) ///
-	ytitle("") xtitle("") xlabel(,valuelabel labsize(medsmall))
+	yline(50, lcolor(gray) lpattern(dash)) ylab(0(50)100, nogrid) ytick(0(25)100) ///
+	ytitle("Percentile Among U.S. Counties") xtitle("") xlabel(,valuelabel labsize(medsmall))
 
 
 /******************************************************************************
