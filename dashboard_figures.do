@@ -158,53 +158,6 @@ twoway (bar pctile_ order if tag_good==1, horizontal color(green) ) ///
 *CZ level
 use "C:\Users\jgracie\Downloads\online_table3.dta" , clear
 
-xtile test=score_r [w=pop2000], nq(100)
-list test if cz==39400
-
-*We imputed (mentally) the Seattle rank because of missing data
-/*
-gen grad_rate=1-dropout_r
-replace grad_rate=.775 if cz==39400
-xtile grad=grad_rate [w=pop2000], nq(100)
-list grad if cz==39400
-*/
-xtile work= frac_worked1416 [w=pop2000], nq(100)
-list work if cz==39400
-
-gen perm_res_p25_tb_neg=-perm_res_p25_tb
-xtile teen=perm_res_p25_tb_neg [w=pop2000], nq(100)
-list teen if cz==39400
-
-xtile coll=perm_res_p25_c1823 [w=pop2000], nq(100)
-list coll if cz==39400
-
-xtile rank= perm_res_p25_kr30 [w=pop2000], nq(100)
-list rank if cz==39400
-
-*County Level
-use "C:\Users\jgracie\Downloads\online_table4.dta" , clear
-xtile test=score_r [w=cty_pop2000], nq(100)
-list test if cty2000==53033
-
-*We imputed (mentally) the King County rank because of missing data
-/*
-gen grad_rate=1-dropout_r
-replace grad_rate=.804 if cty2000==53033
-xtile grad=grad_rate [w=cty_pop2000], nq(100)
-list grad if cty2000==53033
-*/
-xtile work= frac_worked1416 [w=cty_pop2000], nq(100)
-list work if cty2000==53033
-
-gen perm_res_p25_tb_neg=-perm_res_p25_tb
-xtile teen=perm_res_p25_tb_neg [w=cty_pop2000], nq(100)
-list teen if cty2000==53033
-
-xtile coll=perm_res_p25_c1823 [w=cty_pop2000], nq(100)
-list coll if cty2000==53033
-
-xtile rank= perm_res_p25_kr30 [w=cty_pop2000], nq(100)
-list rank if cty2000==53033
 
 
 **********************************************************
