@@ -52,18 +52,18 @@ replace grad_rate=.804 if cty2000==53033
 xtile pctile_grad=grad_rate [w=cty_pop2000], nq(100)
 list pctile_grad if cty2000==${county}
 */
-gen pctile_grad=45 if cty2000==${county}
+gen pctile_grad=40 if cty2000==${county}
 
 *Teen Work
 xtile pctile_work= frac_worked1416 [w=cty_pop2000], nq(100)
 list pctile_work if cty2000==${county}
 
 *College Attendance
-xtile coll=pctile_perm_res_p25_c1823 [w=cty_pop2000], nq(100)
+xtile pctile_coll=perm_res_p25_c1823 [w=cty_pop2000], nq(100)
 list pctile_coll if cty2000==${county}
 
 *Kid Rank at 30
-xtile rank= perm_res_p25_kr30 [w=cty_pop2000], nq(100)
+xtile pctile_rank= perm_res_p25_kr30 [w=cty_pop2000], nq(100)
 list pctile_rank if cty2000==${county}
 
 ******************************************************************************
