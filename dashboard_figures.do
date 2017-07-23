@@ -34,34 +34,39 @@ global county=53033
 ********************************************************************************
 * Figure 1- Dynamics of Opportunity
 ********************************************************************************/
+*Variables of interest - K-8 Test Scores, HS Grad Rate, Teen Work, College Attendance, Earnings at 30
 
-*cz level
-use "C:\Users\jgracie\Downloads\online_table3.dta" , clear
-
-global covars ccd_pup_tch_ratio cs_race_theil_2000 cs_fam_wkidsinglemom scap_ski90pcm poor_share
-
-*create percentiles
-xtile stud_teach_2=ccd_pup_tch_ratio [w=pop2000], nq(100)
-list stud_teach_2 if cz==39400
-
-xtile seg=cs_race_theil_2000 [w=pop2000], nq(100)
-list seg if cz==39400
-
-xtile single=cs_fam_wkidsinglemom [w=pop2000], nq(100)
-list single if cz==39400
-
-xtile scap=scap_ski90pcm [w=pop2000], nq(100)
-list scap if cz==39400
-
-xtile poor=poor_share [w=pop2000], nq(100)
-list poor if cz==39400
-
-xtile gini_2=gini [w=pop2000], nq(100)
-list gini_2 if cz==39400
-
-*county level
-
+*use the covariate data from 
 use "C:\Users\jgracie\Downloads\online_table4.dta" , clear
+
+
+*Test Scores
+xtile pctile_test=score_r [w=cty_pop2000], nq(100)
+list pctile_test if cty2000==${county}
+
+*Grad Rates
+*We imputed (mentally) the King County rank because of missing data
+/*
+gen grad_rate=1-dropout_r
+replace grad_rate=.804 if cty2000==53033
+xtile pctile_grad=grad_rate [w=cty_pop2000], nq(100)
+list pctile_grad if cty2000==${county}
+*/
+gen pctile_grad=45 if cty2000==${county}
+
+*Teen Work
+xtile pctile_work= frac_worked1416 [w=cty_pop2000], nq(100)
+list pctile_work if cty2000==${county}
+
+*College Attendance
+xtile coll=pctile_perm_res_p25_c1823 [w=cty_pop2000], nq(100)
+list pctile_coll if cty2000==${county}
+
+*Kid Rank at 30
+xtile rank= perm_res_p25_kr30 [w=cty_pop2000], nq(100)
+list pctile_rank if cty2000==${county}
+
+******************************************************************************
 *create percentiles
 xtile stud_teach_2=ccd_pup_tch_ratio [w=cty_pop2000], nq(100)
 list stud_teach_2 if cty2000==53033
