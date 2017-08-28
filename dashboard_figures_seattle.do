@@ -19,17 +19,17 @@ adopath ++${dropbox}/ado
 set scheme leap_slides
 
 * Macros
-global figs "$dropbox/finer_geo/seattle/tract_figs/dashboard"  
-global data_cw "$dropbox/finer_geo/data/derived/crosswalks/"
+global figs "$dropbox/finer_geo/scratch/seattle"  
+global data_cw "$dropbox/finer_geo/data/raw/crosswalks"
 global newdata "$dropbox/finer_geo/data/raw/tract_exposure_estimates" 
 global covar "$dropbox/finer_geo/data/derived/covariates"
 global county_data "${dropbox}/movers/final_web_files/Online_Tables_Final"
 global college_data "${dropbox}/ota_cqa/online_tables_clean_07212017/final_tables"
-global suffix png
+global suffix wmf
 *The dashboard constructs figures at the county level
 *Use this macro to enter the desired county using the county FIPS code
 *For now doing King County (53033)
-global county=53033	
+global county = 53033
 
 cap mkdir "${figs}/county_${county}"
 global out_folder "${figs}/county_${county}"
